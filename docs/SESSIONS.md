@@ -1,6 +1,6 @@
 # Easy Candle — Session Workflow
 
-This project is built in **sessions**. Each session is one focused slice of work from the implementation plan. Sessions are implemented on a **feature branch**, reviewed by you, then merged to `main` only when you ask.
+This project is built in **sessions**. Each session is one focused slice of work from the implementation plan. Sessions are implemented on a **feature branch**, reviewed by you, then merged to `main` locally only when you ask. You push `main` to the remote yourself.
 
 ## How work proceeds
 
@@ -8,9 +8,12 @@ This project is built in **sessions**. Each session is one focused slice of work
 2. The agent reads [`PROGRESS.md`](./PROGRESS.md) to find the last session with status `done`.
 3. The agent implements the **next** `pending` session only.
 4. Before coding, the agent creates and checks out a branch named after that session (see below).
-5. When the session work is finished, the agent updates `PROGRESS.md` for that session to `implemented` (awaiting your merge approval).
-6. You review. If you are OK, you ask to **merge to main** (or create a PR / merge yourself).
-7. After merge to `main`, that session is marked `done` in `PROGRESS.md`.
+5. When the session work is finished, the agent:
+   - updates `PROGRESS.md` for that session to `implemented`
+   - **commits locally** on the session branch with a short, professional message
+6. You review. If you are OK, you ask to **merge to main**.
+7. The agent merges the session branch into `main` **locally** (no pull request), marks the session `done` in `PROGRESS.md`, and commits that progress update on `main` if needed.
+8. You push updated `main` to the remote when you want.
 
 ## Branch naming
 
@@ -23,19 +26,29 @@ Examples:
 - `session/01-project-setup`
 - `session/02-static-chart`
 
-Always branch from an up-to-date `main`:
+Always branch from local `main`:
 
 ```bash
 git checkout main
-git pull origin main
 git checkout -b session/0N-short-slug
 ```
 
+Do not push session branches or `main` unless the user explicitly asks. The user pushes `main` themselves.
+
+## Commit policy
+
+- After each session implementation is complete, **commit locally** on the session branch with a short, proper message (what/why, 1 line preferred).
+- Include the `PROGRESS.md` status update (`implemented`) in that commit when practical.
+- Do **not** push to remote unless the user explicitly asks.
+
 ## Merge policy
 
-- Do **not** merge to `main` unless you explicitly ask.
-- Prefer a PR (`gh pr create`) when you ask to merge, unless you say to merge locally.
-- One session = one branch = one merge unit.
+- Do **not** merge to `main` unless the user explicitly asks.
+- Always merge **locally** (`git checkout main` → `git merge session/...`).
+- **No pull requests** — do not use `gh pr create` or open PRs for session merges.
+- One session = one branch = one local merge unit.
+- After a successful local merge, mark the session `done` in `PROGRESS.md` and commit on `main` if that file changed.
+- Leave pushing `main` to the user.
 
 ## Session index
 
@@ -56,8 +69,8 @@ git checkout -b session/0N-short-slug
 |--------|---------|
 | `pending` | Not started |
 | `in_progress` | Currently being implemented on a session branch |
-| `implemented` | Code finished on the session branch; waiting for your OK to merge |
-| `done` | Merged to `main` |
+| `implemented` | Code finished and committed on the session branch; waiting for your OK to merge locally |
+| `done` | Merged into local `main` |
 
 ## Agent rules for this repo
 
@@ -67,13 +80,15 @@ When the user says **implement next session**:
 2. Find the highest session ID with status `done` (or none → start at 01).
 3. If a session is `in_progress` or `implemented`, stop and report that; do not start a new session until that one is `done` or the user redirects.
 4. Read that session’s markdown under `docs/sessions/`.
-5. Create the session branch from `main`, implement only that session’s scope, update progress.
+5. Create the session branch from local `main`, implement only that session’s scope.
+6. Set progress to `implemented`, commit locally on the session branch with a short proper message. Do not push. Do not merge yet.
 
 When the user says **merge** (this session / to main):
 
 1. Confirm the current session is `implemented`.
-2. Merge or open a PR as requested.
-3. Mark the session `done` in `PROGRESS.md` after it lands on `main`.
+2. Merge the session branch into `main` **locally** (no PR).
+3. Mark the session `done` in `PROGRESS.md`, commit on `main` if needed.
+4. Do not push; remind the user they can push `main` themselves.
 
 ## Stack reminders (v1)
 

@@ -27,8 +27,8 @@ Single source of truth for session status. Agents must read this before starting
 
 - `pending` — not started
 - `in_progress` — implementation underway on the session branch
-- `implemented` — finished on branch; waiting for user approval to merge
-- `done` — merged into `main`
+- `implemented` — finished and committed on the session branch; waiting for user OK to merge locally
+- `done` — merged into local `main` (user pushes remote themselves)
 
 ## Changelog
 

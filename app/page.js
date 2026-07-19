@@ -1,12 +1,22 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import AppShell from "@/components/AppShell";
+import { MOCK_CANDLES } from "@/lib/mockCandles";
+
+const CandleChart = dynamic(() => import("@/components/CandleChart"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-zinc-500">
+      Loading chart…
+    </div>
+  ),
+});
+
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6">
-      <h1 className="text-4xl font-semibold tracking-tight text-amber-400">
-        Easy Candle
-      </h1>
-      <p className="mt-3 max-w-md text-center text-zinc-400">
-        Candlestick replay workspace — project shell is ready.
-      </p>
-    </main>
+    <AppShell>
+      <CandleChart candles={MOCK_CANDLES} />
+    </AppShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Activity } from "lucide-react";
+import IndicatorToggles from "@/components/IndicatorToggles";
 import ReplayControls from "@/components/ReplayControls";
 import ReplayStartPicker from "@/components/ReplayStartPicker";
 import StatusBar from "@/components/StatusBar";
@@ -71,6 +72,7 @@ export default function AppShell({ children }) {
         <div className="flex flex-wrap items-center gap-2">
           <SymbolSelect />
           <TimeframeSelect />
+          <IndicatorToggles />
           <StatusBar />
         </div>
 

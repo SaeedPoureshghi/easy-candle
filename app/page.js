@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
+import { buildOverlays } from "@/lib/indicators";
 import { useReplayStore } from "@/store/replayStore";
 
 const CandleChart = dynamic(() => import("@/components/CandleChart"), {
@@ -20,11 +21,20 @@ export default function HomePage() {
   const visibleCandles = useReplayStore((s) => s.visibleCandles);
   const currentCandle = useReplayStore((s) => s.currentCandle);
   const chartSync = useReplayStore((s) => s.chartSync);
+  const activeIndicators = useReplayStore((s) => s.activeIndicators);
   const loadCandles = useReplayStore((s) => s.loadCandles);
 
   useEffect(() => {
     loadCandles();
   }, [loadCandles]);
+
+  const overlaySource =
+    mode === "replay" ? visibleCandles ?? [] : candles ?? [];
+
+  const overlays = useMemo(
+    () => buildOverlays(overlaySource, activeIndicators),
+    [overlaySource, activeIndicators],
+  );
 
   return (
     <AppShell>
@@ -34,6 +44,7 @@ export default function HomePage() {
         visibleCandles={visibleCandles}
         currentCandle={currentCandle}
         chartSync={chartSync}
+        overlays={overlays}
       />
     </AppShell>
   );

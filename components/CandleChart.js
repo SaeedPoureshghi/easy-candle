@@ -10,6 +10,8 @@ const DEFAULT_VISIBLE_BARS = 50;
  * @typedef {{ time: number, open: number, high: number, low: number, close: number }} Candle
  * @typedef {'replace' | 'append'} ChartSyncKind
  * @typedef {{ kind: ChartSyncKind, fitContent: boolean, revision: number }} ChartSync
+ * @typedef {{ time: number, value: number }} OverlayPoint
+ * @typedef {{ id: string, type: 'line', data: OverlayPoint[], color?: string }} ChartOverlay
  */
 
 /**
@@ -33,13 +35,6 @@ function focusLatestCandle(chart, candleCount, leftBars = DEFAULT_VISIBLE_BARS) 
 }
 
 /**
- * Future line overlays (v1: accepted, not rendered).
- *
- * @typedef {{ time: number, value: number }} OverlayPoint
- * @typedef {{ id: string, type: 'line', data: OverlayPoint[], color?: string }} ChartOverlay
- */
-
-/**
  * @param {{
  *   mode?: 'live' | 'replay',
  *   candles?: Candle[] | null,
@@ -55,11 +50,13 @@ export default function CandleChart({
   visibleCandles = null,
   currentCandle = null,
   chartSync = null,
-  overlays: _overlays = null,
+  overlays = null,
 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
+  /** @type {import('react').MutableRefObject<Map<string, import('lightweight-charts').ISeriesApi<'Line'>>>} */
+  const overlaySeriesRef = useRef(new Map());
 
   /**
    * @param {Candle[]} [next]
@@ -90,6 +87,45 @@ export default function CandleChart({
     const series = seriesRef.current;
     if (!series || !candle) return;
     series.update(candle);
+  }
+
+  /**
+   * @param {ChartOverlay[] | null | undefined} nextOverlays
+   */
+  function syncOverlays(nextOverlays) {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    const list = Array.isArray(nextOverlays) ? nextOverlays : [];
+    const nextIds = new Set(list.map((item) => item.id));
+    const map = overlaySeriesRef.current;
+
+    for (const [id, series] of map.entries()) {
+      if (!nextIds.has(id)) {
+        chart.removeSeries(series);
+        map.delete(id);
+      }
+    }
+
+    for (const overlay of list) {
+      if (overlay.type !== "line") continue;
+
+      let series = map.get(overlay.id);
+      if (!series) {
+        series = chart.addLineSeries({
+          color: overlay.color || "#38bdf8",
+          lineWidth: 2,
+          priceLineVisible: false,
+          lastValueVisible: false,
+          crosshairMarkerVisible: false,
+        });
+        map.set(overlay.id, series);
+      } else if (overlay.color) {
+        series.applyOptions({ color: overlay.color });
+      }
+
+      series.setData(overlay.data ?? []);
+    }
   }
 
   useEffect(() => {
@@ -141,6 +177,7 @@ export default function CandleChart({
 
     return () => {
       observer.disconnect();
+      overlaySeriesRef.current.clear();
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -164,6 +201,10 @@ export default function CandleChart({
 
     reset(visibleCandles ?? [], { fitContent: chartSync.fitContent });
   }, [mode, chartSync?.revision]);
+
+  useEffect(() => {
+    syncOverlays(overlays);
+  }, [overlays]);
 
   const empty =
     mode === "live"

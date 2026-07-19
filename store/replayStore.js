@@ -9,6 +9,7 @@ import {
   PREFETCH_BATCH_SIZE,
 } from "@/lib/binance";
 import { findIndexAtOrBefore } from "@/lib/candleUtils";
+import { getIndicator } from "@/lib/indicators";
 import { createReplayEngine } from "@/lib/replayEngine";
 import { DEFAULT_SYMBOL } from "@/lib/symbols";
 import {
@@ -394,6 +395,24 @@ export const useReplayStore = create((set, get) => {
     replayLoading: false,
     /** @type {string | null} */
     replayMessage: null,
+
+    /** @type {string[]} Active overlay indicator ids (e.g. sma20, ema20). */
+    activeIndicators: [],
+
+    /**
+     * @param {string} id
+     */
+    toggleIndicator(id) {
+      if (!getIndicator(id)) return;
+      set((s) => {
+        const active = s.activeIndicators.includes(id);
+        return {
+          activeIndicators: active
+            ? s.activeIndicators.filter((item) => item !== id)
+            : [...s.activeIndicators, id],
+        };
+      });
+    },
 
     /**
      * @param {string} symbol Binance symbol, e.g. BTCUSDT

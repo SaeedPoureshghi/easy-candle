@@ -6,9 +6,9 @@ Single source of truth for session status. Agents must read this before starting
 
 ## Current pointer
 
-- **Last done session:** `07`
-- **Next session to implement:** `08` _(implemented — awaiting merge)_
-- **Active branch:** `session/08-polish`
+- **Last done session:** `08`
+- **Next session to implement:** _(none — v1 complete)_
+- **Active branch:** _(none)_
 
 ## Sessions
 
@@ -21,7 +21,7 @@ Single source of truth for session status. Agents must read this before starting
 | 05 | Replay engine module | 3 | `session/05-replay-engine` | `done` | yes | Pure `createReplayEngine` + `findIndexAtOrBefore` |
 | 06 | Store, clock, chart sync | 3 | `session/06-replay-store-sync` | `done` | yes | Engine in store + clock + setData/update sync |
 | 07 | Replay controls + prefetch | 3 | `session/07-replay-controls` | `done` | yes | Start/jump UTC, controls, batch prefetch, TF remap |
-| 08 | Polish, tests, edge cases | 4 | `session/08-polish` | `implemented` | no | Vitest engine tests, UX polish, README |
+| 08 | Polish, tests, edge cases | 4 | `session/08-polish` | `done` | yes | Vitest engine tests, UX polish, README |
 
 ## Status legend
 
@@ -34,6 +34,7 @@ Single source of truth for session status. Agents must read this before starting
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | 08 | Merged `session/08-polish` into local `main`; status → `done`. v1 complete. |
 | 2026-07-19 | 08 | Vitest engine tests, empty/error/ended UX, tab-hidden pause, README; status → `implemented`. |
 | 2026-07-19 | 07 | Merged `session/07-replay-controls` into local `main`; status → `done`. |
 | 2026-07-19 | 07 | Replay start/jump UTC controls + forward prefetch; status → `implemented`. |

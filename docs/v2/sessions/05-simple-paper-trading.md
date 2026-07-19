@@ -11,11 +11,11 @@ Replay-only Buy/Sell simulation at current close with markers and unrealized PnL
 ## Rules
 
 - One open position at a time
-- Buy: open/flip to long at current close
-- Sell: open/flip to short at current close (or close opposite by flipping)
-- Unrealized PnL vs current close; markers on chart
-- Reset on exit replay
-- No size, fees, TP/SL, or history panel
+- Buy / Sell: open long/short when flat (at current close); must Close before opening again
+- Close: realize PnL into session history (no flip)
+- Cumulative session PnL = sum of closed + unrealized on open
+- Trade dock below chart lists each position; in-memory only (exit / refresh clears)
+- No size, fees, TP/SL, or persistence
 
 ## Out of scope
 

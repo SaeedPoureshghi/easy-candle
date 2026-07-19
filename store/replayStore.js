@@ -10,7 +10,7 @@ import {
 } from "@/lib/binance";
 import { findIndexAtOrBefore } from "@/lib/candleUtils";
 import { getIndicator } from "@/lib/indicators";
-import { applySide } from "@/lib/paperTrade";
+import { closePosition, openPosition } from "@/lib/paperTrade";
 import { createReplayEngine } from "@/lib/replayEngine";
 import { DEFAULT_SYMBOL } from "@/lib/symbols";
 import {
@@ -32,20 +32,27 @@ import {
  * @typedef {HLineDrawing | TrendDrawing} Drawing
  * @typedef {{ time: number, price: number }} TrendPoint
  * @typedef {import("@/lib/paperTrade").Position} Position
+ * @typedef {import("@/lib/paperTrade").ClosedTrade} ClosedTrade
  * @typedef {{
  *   time: number,
  *   position: 'aboveBar' | 'belowBar',
  *   color: string,
- *   shape: 'arrowUp' | 'arrowDown',
+ *   shape: 'arrowUp' | 'arrowDown' | 'circle',
  *   text: string,
  * }} TradeMarker
  */
 
 let drawingSeq = 0;
+let tradeSeq = 0;
 
 function nextDrawingId() {
   drawingSeq += 1;
   return `d-${drawingSeq}`;
+}
+
+function nextTradeId() {
+  tradeSeq += 1;
+  return `t-${tradeSeq}`;
 }
 
 const engine = createReplayEngine();
@@ -226,6 +233,7 @@ export const useReplayStore = create((set, get) => {
       drawings: [],
       pendingTrend: null,
       position: null,
+      closedTrades: [],
       tradeMarkers: [],
       chartSync: {
         kind: "replace",
@@ -238,7 +246,7 @@ export const useReplayStore = create((set, get) => {
   /**
    * @param {'long' | 'short'} side
    */
-  function fillSide(side) {
+  function tryOpen(side) {
     if (get().mode !== "replay") return;
     if (get().replayLoading) return;
     if (get().replayStatus === "ended") return;
@@ -246,16 +254,21 @@ export const useReplayStore = create((set, get) => {
     const candle = engine.getCurrentCandle() || get().currentCandle;
     if (!candle) return;
 
-    const { position, fill } = applySide(
+    const result = openPosition(
       get().position,
       side,
       candle.close,
       candle.time,
+      nextTradeId(),
     );
+    if (!result.ok) {
+      set({ replayMessage: result.reason });
+      return;
+    }
 
     /** @type {TradeMarker} */
     const marker = {
-      time: fill.time,
+      time: candle.time,
       position: side === "long" ? "belowBar" : "aboveBar",
       color: side === "long" ? "#22c55e" : "#ef4444",
       shape: side === "long" ? "arrowUp" : "arrowDown",
@@ -263,8 +276,39 @@ export const useReplayStore = create((set, get) => {
     };
 
     set((s) => ({
-      position,
+      position: result.position,
       tradeMarkers: [...s.tradeMarkers, marker],
+      replayMessage: null,
+    }));
+  }
+
+  function tryClose() {
+    if (get().mode !== "replay") return;
+    if (get().replayLoading) return;
+    if (get().replayStatus === "ended") return;
+
+    const open = get().position;
+    if (!open) return;
+
+    const candle = engine.getCurrentCandle() || get().currentCandle;
+    if (!candle) return;
+
+    const closed = closePosition(open, candle.close, candle.time);
+
+    /** @type {TradeMarker} */
+    const marker = {
+      time: candle.time,
+      position: "aboveBar",
+      color: "#fbbf24",
+      shape: "circle",
+      text: "X",
+    };
+
+    set((s) => ({
+      position: null,
+      closedTrades: [...s.closedTrades, closed],
+      tradeMarkers: [...s.tradeMarkers, marker],
+      replayMessage: null,
     }));
   }
 
@@ -412,13 +456,23 @@ export const useReplayStore = create((set, get) => {
     // and 15m→4h seeks the parent 4h that contains the playhead.
     const seekTime = alignTimeToInterval(anchorOpen, nextIntervalSec);
 
-    // Drawings/trades are time-scale bound; reset them on TF remap.
+    // Drawings/markers are time-scale bound. Realize any open trade into
+    // session history, keep closedTrades, clear chart markers.
+    const open = get().position;
+    const candle = engine.getCurrentCandle() || get().currentCandle;
+    /** @type {ClosedTrade[]} */
+    let nextClosed = get().closedTrades;
+    if (open && candle) {
+      nextClosed = [...nextClosed, closePosition(open, candle.close, candle.time)];
+    }
+
     set({
       timeframe: nextTimeframe,
       drawings: [],
       pendingTrend: null,
       drawTool: "select",
       position: null,
+      closedTrades: nextClosed,
       tradeMarkers: [],
     });
 
@@ -549,15 +603,21 @@ export const useReplayStore = create((set, get) => {
 
     /** @type {Position | null} */
     position: null,
+    /** @type {ClosedTrade[]} */
+    closedTrades: [],
     /** @type {TradeMarker[]} */
     tradeMarkers: [],
 
     paperBuy() {
-      fillSide("long");
+      tryOpen("long");
     },
 
     paperSell() {
-      fillSide("short");
+      tryOpen("short");
+    },
+
+    paperClose() {
+      tryClose();
     },
 
     /**

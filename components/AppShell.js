@@ -9,7 +9,7 @@ import ReplayStartPicker from "@/components/ReplayStartPicker";
 import StatusBar from "@/components/StatusBar";
 import SymbolSelect from "@/components/SymbolSelect";
 import TimeframeSelect from "@/components/TimeframeSelect";
-import TradeButtons from "@/components/TradeButtons";
+import TradePanel from "@/components/TradePanel";
 import { useReplayHotkeys } from "@/hooks/useReplayHotkeys";
 import { useReplayStore } from "@/store/replayStore";
 
@@ -81,7 +81,6 @@ export default function AppShell({ children }) {
         <div className="flex flex-wrap items-center gap-2">
           {!inReplay ? <ReplayStartPicker /> : <ReplayControls />}
           <DrawingToolbar />
-          <TradeButtons />
         </div>
       </div>
 
@@ -131,6 +130,7 @@ export default function AppShell({ children }) {
             </div>
           )}
         </div>
+        <TradePanel />
       </main>
     </div>
   );

@@ -28,8 +28,8 @@ yarn build   # production build
 4. **Space** — pause while playing, otherwise step forward one candle (ignored in form fields).
 5. Toggle **SMA 20** / **EMA 20** overlays.
 6. In replay: draw **horizontal** or **trend** lines; **Esc** cancels a pending trend / returns to select.
-7. **Buy** / **Sell** open or flip a single paper position at the current candle close (markers + unrealized PnL).
-8. Changing timeframe mid-replay keeps the playhead but clears drawings and paper trades. Changing symbol exits replay.
+7. Below the chart: **Buy** / **Sell** open a long/short when flat; **Close** realizes PnL. Session list shows each trade + cumulative performance (resets on exit replay / refresh).
+8. Changing timeframe mid-replay keeps the playhead, clears drawings, and auto-closes any open trade into session history. Changing symbol exits replay and clears all trades.
 
 All times in the UI are **UTC**. Candle `time` values are Unix seconds (lightweight-charts convention).
 

@@ -6,8 +6,9 @@ import { useReplayStore } from "@/store/replayStore";
 export default function TimeframeSelect() {
   const timeframe = useReplayStore((s) => s.timeframe);
   const status = useReplayStore((s) => s.status);
+  const replayLoading = useReplayStore((s) => s.replayLoading);
   const setTimeframe = useReplayStore((s) => s.setTimeframe);
-  const disabled = status === "loading";
+  const disabled = status === "loading" || replayLoading;
 
   return (
     <label className="flex items-center gap-2 text-sm text-zinc-400">

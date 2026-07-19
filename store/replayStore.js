@@ -11,7 +11,11 @@ import {
 import { findIndexAtOrBefore } from "@/lib/candleUtils";
 import { createReplayEngine } from "@/lib/replayEngine";
 import { DEFAULT_SYMBOL } from "@/lib/symbols";
-import { DEFAULT_TIMEFRAME, TIMEFRAMES } from "@/lib/timeframes";
+import {
+  alignTimeToInterval,
+  DEFAULT_TIMEFRAME,
+  TIMEFRAMES,
+} from "@/lib/timeframes";
 
 /**
  * @typedef {'idle' | 'loading' | 'ready' | 'error'} ChartStatus
@@ -208,7 +212,7 @@ export const useReplayStore = create((set, get) => {
    * Load a lookback/forward window around `startTimeSeconds` and seek the playhead.
    *
    * @param {number} startTimeSeconds UTC seconds
-   * @param {{ clampMessage?: boolean }} [opts]
+   * @param {{ clampMessage?: boolean, message?: string | null }} [opts]
    */
   async function loadReplayWindow(startTimeSeconds, opts = {}) {
     const startSec = Math.floor(Number(startTimeSeconds));
@@ -242,6 +246,7 @@ export const useReplayStore = create((set, get) => {
     }
 
     const requestId = (replayRequestId += 1);
+    const expectedTimeframe = timeframe;
     stopClock();
     set({
       replayLoading: true,
@@ -257,7 +262,11 @@ export const useReplayStore = create((set, get) => {
         endTime: endTimeMs,
       });
 
-      if (requestId !== replayRequestId || get().symbol !== symbol) {
+      if (
+        requestId !== replayRequestId ||
+        get().symbol !== symbol ||
+        get().timeframe !== expectedTimeframe
+      ) {
         return false;
       }
 
@@ -269,15 +278,20 @@ export const useReplayStore = create((set, get) => {
         return false;
       }
 
+      // Keep playback speed across timeframe remaps / window reloads.
+      const keptSpeed = engine.getState().speed;
       engine.load(candles);
+      engine.setSpeed(keptSpeed);
 
-      let message = null;
+      let message = opts.message ?? null;
       const firstTime = candles[0].time;
 
       if (startSec < firstTime) {
         engine.seekToIndex(0);
         if (opts.clampMessage !== false) {
-          message = "Start was before the first candle — clamped to buffer start.";
+          message =
+            message ||
+            "Start was before the first candle — clamped to buffer start.";
         }
       } else {
         engine.seekToTime(startSec);
@@ -289,6 +303,7 @@ export const useReplayStore = create((set, get) => {
         replayLoading: false,
         replayMessage: message,
         error: null,
+        speed: engine.getState().speed,
       });
       publishReplay("replace", { fitContent: true });
       void maybePrefetch();
@@ -303,6 +318,50 @@ export const useReplayStore = create((set, get) => {
         replayMessage: message,
       });
       return false;
+    }
+  }
+
+  /**
+   * Remap replay onto another timeframe without exiting replay.
+   * Anchor = current candle open; seek uses at-or-before on the new series
+   * (larger→smaller lands on the first child candle; smaller→larger on the parent).
+   *
+   * @param {string} nextTimeframe
+   */
+  async function switchReplayTimeframe(nextTimeframe) {
+    if (!TIMEFRAMES[nextTimeframe]) return;
+    if (nextTimeframe === get().timeframe) return;
+    if (get().mode !== "replay") return;
+
+    const current = engine.getCurrentCandle() || get().currentCandle;
+    const anchorOpen = current?.time;
+    if (anchorOpen == null || !Number.isFinite(anchorOpen)) {
+      set({
+        replayMessage: "Cannot switch timeframe without a current candle.",
+      });
+      return;
+    }
+
+    stopClock();
+    engine.pause();
+    publishStatus();
+
+    const previousTimeframe = get().timeframe;
+    const nextIntervalSec = intervalSecondsFor(nextTimeframe);
+    // Align to the new TF open so 4h→15m seeks the first 15m of that 4h bar,
+    // and 15m→4h seeks the parent 4h that contains the playhead.
+    const seekTime = alignTimeToInterval(anchorOpen, nextIntervalSec);
+
+    set({ timeframe: nextTimeframe });
+
+    const ok = await loadReplayWindow(seekTime, {
+      clampMessage: true,
+      message: `Timeframe → ${nextTimeframe} (UTC playhead kept).`,
+    });
+
+    // Roll back the selector if this request failed and nothing newer took over.
+    if (!ok && get().timeframe === nextTimeframe && get().mode === "replay") {
+      set({ timeframe: previousTimeframe });
     }
   }
 
@@ -351,6 +410,14 @@ export const useReplayStore = create((set, get) => {
      */
     setTimeframe(timeframe) {
       if (timeframe === get().timeframe) return;
+      if (!TIMEFRAMES[timeframe]) return;
+
+      // In replay: keep the playhead time and reload only that TF window.
+      if (get().mode === "replay") {
+        void switchReplayTimeframe(timeframe);
+        return;
+      }
+
       resetReplayState();
       set({ timeframe, candles: [] });
       get().loadCandles();

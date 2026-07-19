@@ -7,8 +7,8 @@ Single source of truth for session status. Agents must read this before starting
 ## Current pointer
 
 - **Last done session:** `04`
-- **Next session to implement:** `05`
-- **Active branch:** _(none)_
+- **Next session to implement:** `05` _(awaiting merge)_
+- **Active branch:** `session/05-replay-engine`
 
 ## Sessions
 
@@ -18,7 +18,7 @@ Single source of truth for session status. Agents must read this before starting
 | 02 | Static chart shell | 1 | `session/02-static-chart` | `done` | yes | Mock candles via lightweight-charts v4 |
 | 03 | Binance klines proxy | 2 | `session/03-binance-proxy` | `done` | yes | Allowlisted `/api/klines` + cache headers |
 | 04 | Real data on chart | 2 | `session/04-real-chart-data` | `done` | yes | Live BTCUSDT via store + selectors |
-| 05 | Replay engine module | 3 | `session/05-replay-engine` | `pending` | no | |
+| 05 | Replay engine module | 3 | `session/05-replay-engine` | `implemented` | no | Pure `createReplayEngine` + `findIndexAtOrBefore` |
 | 06 | Store, clock, chart sync | 3 | `session/06-replay-store-sync` | `pending` | no | |
 | 07 | Replay controls + prefetch | 3 | `session/07-replay-controls` | `pending` | no | |
 | 08 | Polish, tests, edge cases | 4 | `session/08-polish` | `pending` | no | |
@@ -34,6 +34,7 @@ Single source of truth for session status. Agents must read this before starting
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | 05 | Pure replay engine + candle seek helper; status → `implemented`. |
 | 2026-07-19 | 04 | Merged `session/04-real-chart-data` into local `main`; status → `done`. |
 | 2026-07-19 | 04 | Live chart data + selectors + Zustand store; status → `implemented`. |
 | 2026-07-19 | 03 | Merged `session/03-binance-proxy` into local `main`; status → `done`. |

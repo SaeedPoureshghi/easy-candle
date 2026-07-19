@@ -12,7 +12,7 @@ This project is built in **sessions**. Each session is one focused slice of work
    - updates `PROGRESS.md` for that session to `implemented`
    - **commits locally** on the session branch with a short, professional message
 6. You review. If you are OK, you ask to **merge to main**.
-7. The agent merges the session branch into `main` **locally** (no pull request), marks the session `done` in `PROGRESS.md`, and commits that progress update on `main` if needed.
+7. The agent merges the session branch into `main` **locally** (no pull request), marks the session `done` in `PROGRESS.md`, commits that progress update on `main` if needed, then **deletes the local session branch**.
 8. You push updated `main` to the remote when you want.
 
 ## Branch naming
@@ -47,7 +47,9 @@ Do not push session branches or `main` unless the user explicitly asks. The user
 - Always merge **locally** (`git checkout main` → `git merge session/...`).
 - **No pull requests** — do not use `gh pr create` or open PRs for session merges.
 - One session = one branch = one local merge unit.
-- After a successful local merge, mark the session `done` in `PROGRESS.md` and commit on `main` if that file changed.
+- After a successful local merge:
+  1. Mark the session `done` in `PROGRESS.md` and commit on `main` if that file changed.
+  2. Delete the local session branch (`git branch -d session/...`). Only delete after the merge succeeded.
 - Leave pushing `main` to the user.
 
 ## Session index
@@ -88,7 +90,8 @@ When the user says **merge** (this session / to main):
 1. Confirm the current session is `implemented`.
 2. Merge the session branch into `main` **locally** (no PR).
 3. Mark the session `done` in `PROGRESS.md`, commit on `main` if needed.
-4. Do not push; remind the user they can push `main` themselves.
+4. After a successful merge, delete the local session branch (`git branch -d session/...`).
+5. Do not push; remind the user they can push `main` themselves.
 
 ## Stack reminders (v1)
 

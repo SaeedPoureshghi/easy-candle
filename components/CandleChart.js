@@ -3,11 +3,36 @@
 import { useEffect, useRef } from "react";
 import { createChart } from "lightweight-charts";
 
+/** How many candles to keep left of the latest bar when applying the default zoom. */
+const DEFAULT_VISIBLE_BARS = 50;
+
 /**
  * @typedef {{ time: number, open: number, high: number, low: number, close: number }} Candle
  * @typedef {'replace' | 'append'} ChartSyncKind
  * @typedef {{ kind: ChartSyncKind, fitContent: boolean, revision: number }} ChartSync
+ */
+
+/**
+ * Zoom to the latest candle: ~`leftBars` candles on the left, latest bar centered,
+ * matching blank space on the right.
  *
+ * @param {import("lightweight-charts").IChartApi} chart
+ * @param {number} candleCount
+ * @param {number} [leftBars]
+ */
+function focusLatestCandle(chart, candleCount, leftBars = DEFAULT_VISIBLE_BARS) {
+  if (!chart || candleCount <= 0) return;
+
+  const last = candleCount - 1;
+  const span = Math.min(leftBars, Math.max(candleCount - 1, 1));
+
+  chart.timeScale().setVisibleLogicalRange({
+    from: last - span,
+    to: last + span,
+  });
+}
+
+/**
  * @param {{
  *   mode?: 'live' | 'replay',
  *   candles?: Candle[] | null,
@@ -36,9 +61,16 @@ export default function CandleChart({
     const chart = chartRef.current;
     if (!series || !chart) return;
 
-    series.setData(next ?? []);
-    if (opts.fitContent !== false && next?.length) {
-      chart.timeScale().fitContent();
+    const data = next ?? [];
+    series.setData(data);
+
+    if (opts.fitContent !== false && data.length) {
+      // Apply after layout so the logical range sticks.
+      requestAnimationFrame(() => {
+        if (chartRef.current === chart) {
+          focusLatestCandle(chart, data.length);
+        }
+      });
     }
   }
 

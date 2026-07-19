@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
-import { MOCK_CANDLES } from "@/lib/mockCandles";
+import { useReplayStore } from "@/store/replayStore";
 
 const CandleChart = dynamic(() => import("@/components/CandleChart"), {
   ssr: false,
@@ -14,9 +15,16 @@ const CandleChart = dynamic(() => import("@/components/CandleChart"), {
 });
 
 export default function HomePage() {
+  const candles = useReplayStore((s) => s.candles);
+  const loadCandles = useReplayStore((s) => s.loadCandles);
+
+  useEffect(() => {
+    loadCandles();
+  }, [loadCandles]);
+
   return (
     <AppShell>
-      <CandleChart candles={MOCK_CANDLES} />
+      <CandleChart candles={candles} />
     </AppShell>
   );
 }

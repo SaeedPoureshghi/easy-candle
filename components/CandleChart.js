@@ -11,6 +11,7 @@ import { createChart } from "lightweight-charts";
 export default function CandleChart({ candles }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
+  const seriesRef = useRef(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -18,7 +19,7 @@ export default function CandleChart({ candles }) {
 
     const chart = createChart(container, {
       width: container.clientWidth,
-      height: container.clientHeight,
+      height: container.clientHeight || 320,
       layout: {
         background: { color: "#09090b" },
         textColor: "#a1a1aa",
@@ -45,10 +46,8 @@ export default function CandleChart({ candles }) {
       wickDownColor: "#ef4444",
     });
 
-    series.setData(candles);
-    chart.timeScale().fitContent();
-
     chartRef.current = chart;
+    seriesRef.current = series;
 
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
@@ -63,7 +62,19 @@ export default function CandleChart({ candles }) {
       observer.disconnect();
       chart.remove();
       chartRef.current = null;
+      seriesRef.current = null;
     };
+  }, []);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    const chart = chartRef.current;
+    if (!series || !chart) return;
+
+    series.setData(candles ?? []);
+    if (candles?.length) {
+      chart.timeScale().fitContent();
+    }
   }, [candles]);
 
   return <div ref={containerRef} className="h-full w-full min-h-[320px]" />;

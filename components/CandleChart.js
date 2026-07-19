@@ -19,7 +19,7 @@ export default function CandleChart({ candles }) {
 
     const chart = createChart(container, {
       width: container.clientWidth,
-      height: container.clientHeight || 320,
+      height: Math.max(container.clientHeight, 1),
       layout: {
         background: { color: "#09090b" },
         textColor: "#a1a1aa",
@@ -53,7 +53,9 @@ export default function CandleChart({ candles }) {
       const entry = entries[0];
       if (!entry) return;
       const { width, height } = entry.contentRect;
-      chart.applyOptions({ width, height });
+      if (width > 0 && height > 0) {
+        chart.applyOptions({ width, height });
+      }
     });
 
     observer.observe(container);
@@ -77,5 +79,5 @@ export default function CandleChart({ candles }) {
     }
   }, [candles]);
 
-  return <div ref={containerRef} className="h-full w-full min-h-[320px]" />;
+  return <div ref={containerRef} className="absolute inset-0 h-full w-full" />;
 }

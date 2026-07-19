@@ -10,7 +10,11 @@ import {
 } from "@/lib/binance";
 import { findIndexAtOrBefore } from "@/lib/candleUtils";
 import { getIndicator } from "@/lib/indicators";
-import { closePosition, openPosition } from "@/lib/paperTrade";
+import {
+  closePosition,
+  openPosition,
+  summarizeSession,
+} from "@/lib/paperTrade";
 import { createReplayEngine } from "@/lib/replayEngine";
 import { DEFAULT_SYMBOL } from "@/lib/symbols";
 import {
@@ -33,6 +37,7 @@ import {
  * @typedef {{ time: number, price: number }} TrendPoint
  * @typedef {import("@/lib/paperTrade").Position} Position
  * @typedef {import("@/lib/paperTrade").ClosedTrade} ClosedTrade
+ * @typedef {import("@/lib/paperTrade").SessionSummary} SessionSummary
  * @typedef {{
  *   time: number,
  *   position: 'aboveBar' | 'belowBar',
@@ -40,6 +45,13 @@ import {
  *   shape: 'arrowUp' | 'arrowDown',
  *   text: string,
  * }} TradeMarker
+ * @typedef {{
+ *   symbol: string,
+ *   timeframe: string,
+ *   trades: ClosedTrade[],
+ *   summary: SessionSummary,
+ *   closedOpenOnExit: boolean,
+ * }} SessionReport
  */
 
 let drawingSeq = 0;
@@ -597,6 +609,8 @@ export const useReplayStore = create((set, get) => {
     closedTrades: [],
     /** @type {TradeMarker[]} */
     tradeMarkers: [],
+    /** @type {SessionReport | null} */
+    sessionReport: null,
 
     paperBuy() {
       tryOpen("long");
@@ -608,6 +622,10 @@ export const useReplayStore = create((set, get) => {
 
     paperClose() {
       tryClose();
+    },
+
+    dismissSessionReport() {
+      set({ sessionReport: null });
     },
 
     /**
@@ -723,7 +741,38 @@ export const useReplayStore = create((set, get) => {
     },
 
     exitReplay() {
+      const { position, closedTrades, symbol, timeframe, currentCandle } =
+        get();
+
+      /** @type {ClosedTrade[]} */
+      let trades = [...closedTrades];
+      let closedOpenOnExit = false;
+
+      if (position) {
+        const candle = engine.getCurrentCandle() || currentCandle;
+        if (candle) {
+          trades = [
+            ...trades,
+            closePosition(position, candle.close, candle.time),
+          ];
+          closedOpenOnExit = true;
+        }
+      }
+
+      /** @type {SessionReport | null} */
+      const sessionReport =
+        trades.length > 0
+          ? {
+              symbol,
+              timeframe,
+              trades,
+              summary: summarizeSession(trades),
+              closedOpenOnExit,
+            }
+          : null;
+
       resetReplayState();
+      set({ sessionReport });
       get().loadCandles();
     },
 

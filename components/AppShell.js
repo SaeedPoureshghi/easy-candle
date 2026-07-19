@@ -6,6 +6,7 @@ import DrawingToolbar from "@/components/DrawingToolbar";
 import IndicatorToggles from "@/components/IndicatorToggles";
 import ReplayControls from "@/components/ReplayControls";
 import ReplayStartPicker from "@/components/ReplayStartPicker";
+import SessionReportModal from "@/components/SessionReportModal";
 import StatusBar from "@/components/StatusBar";
 import SymbolSelect from "@/components/SymbolSelect";
 import TimeframeSelect from "@/components/TimeframeSelect";
@@ -70,18 +71,13 @@ export default function AppShell({ children }) {
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-col gap-2 border-b border-zinc-800/90 bg-zinc-950/90 px-3 py-2 sm:px-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <SymbolSelect />
-          <TimeframeSelect />
-          <IndicatorToggles />
-          <StatusBar />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {!inReplay ? <ReplayStartPicker /> : <ReplayControls />}
-          <DrawingToolbar />
-        </div>
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-zinc-800/90 bg-zinc-950/90 px-3 py-2 sm:px-4">
+        <SymbolSelect />
+        <TimeframeSelect />
+        <IndicatorToggles />
+        {!inReplay ? <ReplayStartPicker /> : <ReplayControls />}
+        <DrawingToolbar />
+        <StatusBar />
       </div>
 
       {status === "error" && error && (
@@ -132,6 +128,8 @@ export default function AppShell({ children }) {
         </div>
         <TradePanel />
       </main>
+
+      <SessionReportModal />
     </div>
   );
 }

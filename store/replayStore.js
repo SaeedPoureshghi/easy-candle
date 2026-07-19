@@ -10,6 +10,7 @@ import {
 } from "@/lib/binance";
 import { findIndexAtOrBefore } from "@/lib/candleUtils";
 import { getIndicator } from "@/lib/indicators";
+import { applySide } from "@/lib/paperTrade";
 import { createReplayEngine } from "@/lib/replayEngine";
 import { DEFAULT_SYMBOL } from "@/lib/symbols";
 import {
@@ -30,6 +31,14 @@ import {
  * @typedef {{ id: string, type: 'trendline', t1: number, p1: number, t2: number, p2: number }} TrendDrawing
  * @typedef {HLineDrawing | TrendDrawing} Drawing
  * @typedef {{ time: number, price: number }} TrendPoint
+ * @typedef {import("@/lib/paperTrade").Position} Position
+ * @typedef {{
+ *   time: number,
+ *   position: 'aboveBar' | 'belowBar',
+ *   color: string,
+ *   shape: 'arrowUp' | 'arrowDown',
+ *   text: string,
+ * }} TradeMarker
  */
 
 let drawingSeq = 0;
@@ -216,11 +225,46 @@ export const useReplayStore = create((set, get) => {
       drawTool: "select",
       drawings: [],
       pendingTrend: null,
+      position: null,
+      tradeMarkers: [],
       chartSync: {
         kind: "replace",
         fitContent: true,
         revision: s.chartSync.revision + 1,
       },
+    }));
+  }
+
+  /**
+   * @param {'long' | 'short'} side
+   */
+  function fillSide(side) {
+    if (get().mode !== "replay") return;
+    if (get().replayLoading) return;
+    if (get().replayStatus === "ended") return;
+
+    const candle = engine.getCurrentCandle() || get().currentCandle;
+    if (!candle) return;
+
+    const { position, fill } = applySide(
+      get().position,
+      side,
+      candle.close,
+      candle.time,
+    );
+
+    /** @type {TradeMarker} */
+    const marker = {
+      time: fill.time,
+      position: side === "long" ? "belowBar" : "aboveBar",
+      color: side === "long" ? "#22c55e" : "#ef4444",
+      shape: side === "long" ? "arrowUp" : "arrowDown",
+      text: side === "long" ? "B" : "S",
+    };
+
+    set((s) => ({
+      position,
+      tradeMarkers: [...s.tradeMarkers, marker],
     }));
   }
 
@@ -493,6 +537,19 @@ export const useReplayStore = create((set, get) => {
 
     clearDrawings() {
       set({ drawings: [], pendingTrend: null });
+    },
+
+    /** @type {Position | null} */
+    position: null,
+    /** @type {TradeMarker[]} */
+    tradeMarkers: [],
+
+    paperBuy() {
+      fillSide("long");
+    },
+
+    paperSell() {
+      fillSide("short");
     },
 
     /**

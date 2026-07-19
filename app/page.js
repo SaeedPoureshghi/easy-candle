@@ -22,6 +22,7 @@ export default function HomePage() {
   const currentCandle = useReplayStore((s) => s.currentCandle);
   const chartSync = useReplayStore((s) => s.chartSync);
   const activeIndicators = useReplayStore((s) => s.activeIndicators);
+  const tradeMarkers = useReplayStore((s) => s.tradeMarkers);
   const loadCandles = useReplayStore((s) => s.loadCandles);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function HomePage() {
         currentCandle={currentCandle}
         chartSync={chartSync}
         overlays={overlays}
+        tradeMarkers={tradeMarkers}
       />
     </AppShell>
   );

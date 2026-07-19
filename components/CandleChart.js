@@ -43,6 +43,13 @@ function focusLatestCandle(chart, candleCount, leftBars = DEFAULT_VISIBLE_BARS) 
  *   currentCandle?: Candle | null,
  *   chartSync?: ChartSync | null,
  *   overlays?: ChartOverlay[] | null,
+ *   tradeMarkers?: Array<{
+ *     time: number,
+ *     position: 'aboveBar' | 'belowBar',
+ *     color: string,
+ *     shape: 'arrowUp' | 'arrowDown',
+ *     text: string,
+ *   }> | null,
  * }} props
  */
 export default function CandleChart({
@@ -52,6 +59,7 @@ export default function CandleChart({
   currentCandle = null,
   chartSync = null,
   overlays = null,
+  tradeMarkers = null,
 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
@@ -213,6 +221,15 @@ export default function CandleChart({
   useEffect(() => {
     syncOverlays(overlays);
   }, [overlays]);
+
+  useEffect(() => {
+    const series = seriesRef.current;
+    if (!series) return;
+    const markers = Array.isArray(tradeMarkers) ? tradeMarkers : [];
+    // lightweight-charts requires markers sorted by time.
+    const sorted = [...markers].sort((a, b) => a.time - b.time);
+    series.setMarkers(sorted);
+  }, [tradeMarkers]);
 
   const empty =
     mode === "live"

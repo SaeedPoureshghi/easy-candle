@@ -20,3 +20,10 @@ Replay-only Buy/Sell simulation at current close with markers and unrealized PnL
 ## Out of scope
 
 - Position size, TP/SL, multi-leg history
+
+## Exit criteria
+
+- [x] Replay-only Buy / Sell at current close
+- [x] Chart markers + unrealized PnL HUD
+- [x] Reset on exit replay
+- [x] Unit tests for paper-trade helpers

@@ -37,7 +37,7 @@ import {
  *   time: number,
  *   position: 'aboveBar' | 'belowBar',
  *   color: string,
- *   shape: 'arrowUp' | 'arrowDown' | 'circle',
+ *   shape: 'arrowUp' | 'arrowDown',
  *   text: string,
  * }} TradeMarker
  */
@@ -295,19 +295,9 @@ export const useReplayStore = create((set, get) => {
 
     const closed = closePosition(open, candle.close, candle.time);
 
-    /** @type {TradeMarker} */
-    const marker = {
-      time: candle.time,
-      position: "aboveBar",
-      color: "#fbbf24",
-      shape: "circle",
-      text: "X",
-    };
-
     set((s) => ({
       position: null,
       closedTrades: [...s.closedTrades, closed],
-      tradeMarkers: [...s.tradeMarkers, marker],
       replayMessage: null,
     }));
   }

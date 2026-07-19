@@ -47,7 +47,7 @@ function focusLatestCandle(chart, candleCount, leftBars = DEFAULT_VISIBLE_BARS) 
  *     time: number,
  *     position: 'aboveBar' | 'belowBar',
  *     color: string,
- *     shape: 'arrowUp' | 'arrowDown' | 'circle',
+ *     shape: 'arrowUp' | 'arrowDown',
  *     text: string,
  *   }> | null,
  * }} props

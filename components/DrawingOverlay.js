@@ -11,10 +11,29 @@ import { useReplayStore } from "@/store/replayStore";
  *   series: import('lightweight-charts').ISeriesApi<'Candlestick'> | null,
  * }} props
  */
+/**
+ * @param {{ x: number, y: number }} from
+ * @param {{ x: number, y: number }} to
+ * @param {number} [size]
+ */
+function arrowHeadPoints(from, to, size = 7) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  const bx = to.x - ux * size;
+  const by = to.y - uy * size;
+  const px = -uy * (size * 0.55);
+  const py = ux * (size * 0.55);
+  return `${to.x},${to.y} ${bx + px},${by + py} ${bx - px},${by - py}`;
+}
+
 export default function DrawingOverlay({ chart, series }) {
   const drawings = useReplayStore((s) => s.drawings);
   const drawTool = useReplayStore((s) => s.drawTool);
   const pendingTrend = useReplayStore((s) => s.pendingTrend);
+  const closedTrades = useReplayStore((s) => s.closedTrades);
   const addHorizontalLine = useReplayStore((s) => s.addHorizontalLine);
   const addTrendPoint = useReplayStore((s) => s.addTrendPoint);
   const mode = useReplayStore((s) => s.mode);
@@ -121,6 +140,50 @@ export default function DrawingOverlay({ chart, series }) {
       onMouseMove={onMove}
       onMouseLeave={() => setHover(null)}
     >
+      {closedTrades.map((trade) => {
+        const from = toXY(trade.entryTime, trade.entryPrice);
+        const to = toXY(trade.exitTime, trade.exitPrice);
+        if (!from || !to) return null;
+
+        const color = trade.pnl >= 0 ? "#22c55e" : "#ef4444";
+        const samePoint =
+          Math.abs(from.x - to.x) < 0.5 && Math.abs(from.y - to.y) < 0.5;
+
+        return (
+          <g key={`trade-${trade.id}-${trade.exitTime}`}>
+            <circle cx={from.x} cy={from.y} r={3} fill={color} />
+            {!samePoint && (
+              <>
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke={color}
+                  strokeWidth={1.75}
+                  strokeOpacity={0.9}
+                />
+                <polygon
+                  points={arrowHeadPoints(from, to)}
+                  fill={color}
+                  stroke="none"
+                />
+              </>
+            )}
+            {samePoint && (
+              <circle
+                cx={to.x}
+                cy={to.y}
+                r={4.5}
+                fill="none"
+                stroke={color}
+                strokeWidth={1.5}
+              />
+            )}
+          </g>
+        );
+      })}
+
       {drawings.map((drawing) => {
         if (drawing.type === "hline") {
           const y = series?.priceToCoordinate(drawing.price);

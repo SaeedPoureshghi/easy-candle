@@ -23,9 +23,21 @@ import {
  * @typedef {'live' | 'replay'} ViewMode
  * @typedef {'replace' | 'append'} ChartSyncKind
  * @typedef {'idle' | 'ready' | 'playing' | 'paused' | 'ended'} ReplayStatus
+ * @typedef {'select' | 'hline' | 'trendline'} DrawTool
  * @typedef {import("@/lib/candleUtils").Candle} Candle
  * @typedef {{ kind: ChartSyncKind, fitContent: boolean, revision: number }} ChartSync
+ * @typedef {{ id: string, type: 'hline', price: number }} HLineDrawing
+ * @typedef {{ id: string, type: 'trendline', t1: number, p1: number, t2: number, p2: number }} TrendDrawing
+ * @typedef {HLineDrawing | TrendDrawing} Drawing
+ * @typedef {{ time: number, price: number }} TrendPoint
  */
+
+let drawingSeq = 0;
+
+function nextDrawingId() {
+  drawingSeq += 1;
+  return `d-${drawingSeq}`;
+}
 
 const engine = createReplayEngine();
 
@@ -201,6 +213,9 @@ export const useReplayStore = create((set, get) => {
       isPrefetching: false,
       replayLoading: false,
       replayMessage: null,
+      drawTool: "select",
+      drawings: [],
+      pendingTrend: null,
       chartSync: {
         kind: "replace",
         fitContent: true,
@@ -399,6 +414,13 @@ export const useReplayStore = create((set, get) => {
     /** @type {string[]} Active overlay indicator ids (e.g. sma20, ema20). */
     activeIndicators: [],
 
+    /** @type {DrawTool} */
+    drawTool: "select",
+    /** @type {Drawing[]} */
+    drawings: [],
+    /** @type {TrendPoint | null} */
+    pendingTrend: null,
+
     /**
      * @param {string} id
      */
@@ -412,6 +434,65 @@ export const useReplayStore = create((set, get) => {
             : [...s.activeIndicators, id],
         };
       });
+    },
+
+    /**
+     * @param {DrawTool} tool
+     */
+    setDrawTool(tool) {
+      if (tool !== "select" && tool !== "hline" && tool !== "trendline") return;
+      set({ drawTool: tool, pendingTrend: null });
+    },
+
+    /**
+     * @param {number} price
+     */
+    addHorizontalLine(price) {
+      if (get().mode !== "replay") return;
+      if (get().replayStatus === "ended") return;
+      if (!Number.isFinite(price)) return;
+      set((s) => ({
+        drawings: [
+          ...s.drawings,
+          { id: nextDrawingId(), type: "hline", price },
+        ],
+      }));
+    },
+
+    /**
+     * @param {TrendPoint} point
+     */
+    addTrendPoint(point) {
+      if (get().mode !== "replay") return;
+      if (get().replayStatus === "ended") return;
+      if (!point || !Number.isFinite(point.time) || !Number.isFinite(point.price)) {
+        return;
+      }
+
+      const pending = get().pendingTrend;
+      if (!pending) {
+        set({ pendingTrend: point });
+        return;
+      }
+
+      set((s) => ({
+        pendingTrend: null,
+        drawings: [
+          ...s.drawings,
+          {
+            id: nextDrawingId(),
+            type: "trendline",
+            t1: pending.time,
+            p1: pending.price,
+            t2: point.time,
+            p2: point.price,
+          },
+        ],
+      }));
+    },
+
+    clearDrawings() {
+      set({ drawings: [], pendingTrend: null });
     },
 
     /**

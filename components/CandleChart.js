@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
+import DrawingOverlay from "@/components/DrawingOverlay";
 
 /** How many candles to keep left of the latest bar when applying the default zoom. */
 const DEFAULT_VISIBLE_BARS = 50;
@@ -57,6 +58,11 @@ export default function CandleChart({
   const seriesRef = useRef(null);
   /** @type {import('react').MutableRefObject<Map<string, import('lightweight-charts').ISeriesApi<'Line'>>>} */
   const overlaySeriesRef = useRef(new Map());
+  const [chartReady, setChartReady] = useState(
+    /** @type {{ chart: import('lightweight-charts').IChartApi, series: import('lightweight-charts').ISeriesApi<'Candlestick'> } | null} */ (
+      null
+    ),
+  );
 
   /**
    * @param {Candle[]} [next]
@@ -163,6 +169,7 @@ export default function CandleChart({
 
     chartRef.current = chart;
     seriesRef.current = series;
+    setChartReady({ chart, series });
 
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
@@ -178,6 +185,7 @@ export default function CandleChart({
     return () => {
       observer.disconnect();
       overlaySeriesRef.current.clear();
+      setChartReady(null);
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -214,6 +222,9 @@ export default function CandleChart({
   return (
     <div className="absolute inset-0 h-full w-full">
       <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+      {chartReady && (
+        <DrawingOverlay chart={chartReady.chart} series={chartReady.series} />
+      )}
       {empty && (
         <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center bg-zinc-950/40 px-4 text-center text-sm text-zinc-500">
           {mode === "replay"

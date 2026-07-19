@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Activity } from "lucide-react";
+import DrawingToolbar from "@/components/DrawingToolbar";
 import IndicatorToggles from "@/components/IndicatorToggles";
 import ReplayControls from "@/components/ReplayControls";
 import ReplayStartPicker from "@/components/ReplayStartPicker";
@@ -78,6 +79,7 @@ export default function AppShell({ children }) {
 
         <div className="flex flex-wrap items-center gap-2">
           {!inReplay ? <ReplayStartPicker /> : <ReplayControls />}
+          <DrawingToolbar />
         </div>
       </div>
 

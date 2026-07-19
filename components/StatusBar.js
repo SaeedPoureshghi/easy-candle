@@ -80,6 +80,11 @@ export default function StatusBar() {
         {replayMessage && (
           <span className="text-amber-400/90">{replayMessage}</span>
         )}
+        {!ended && (
+          <span className="text-zinc-600">
+            Space: {isPlaying ? "pause" : "step"}
+          </span>
+        )}
       </div>
     );
   }

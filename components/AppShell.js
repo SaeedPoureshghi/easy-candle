@@ -7,6 +7,7 @@ import ReplayStartPicker from "@/components/ReplayStartPicker";
 import StatusBar from "@/components/StatusBar";
 import SymbolSelect from "@/components/SymbolSelect";
 import TimeframeSelect from "@/components/TimeframeSelect";
+import { useReplayHotkeys } from "@/hooks/useReplayHotkeys";
 import { useReplayStore } from "@/store/replayStore";
 
 /**
@@ -28,6 +29,8 @@ export default function AppShell({ children }) {
   const showEmptyLive =
     !inReplay && status === "ready" && candles.length === 0;
   const showEndedBanner = inReplay && replayStatus === "ended";
+
+  useReplayHotkeys();
 
   // Pause the replay clock when the tab is hidden (battery / focus).
   useEffect(() => {

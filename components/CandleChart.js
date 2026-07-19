@@ -5,13 +5,51 @@ import { createChart } from "lightweight-charts";
 
 /**
  * @typedef {{ time: number, open: number, high: number, low: number, close: number }} Candle
+ * @typedef {'replace' | 'append'} ChartSyncKind
+ * @typedef {{ kind: ChartSyncKind, fitContent: boolean, revision: number }} ChartSync
  *
- * @param {{ candles: Candle[] }} props
+ * @param {{
+ *   mode?: 'live' | 'replay',
+ *   candles?: Candle[] | null,
+ *   visibleCandles?: Candle[] | null,
+ *   currentCandle?: Candle | null,
+ *   chartSync?: ChartSync | null,
+ * }} props
  */
-export default function CandleChart({ candles }) {
+export default function CandleChart({
+  mode = "live",
+  candles = null,
+  visibleCandles = null,
+  currentCandle = null,
+  chartSync = null,
+}) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
+
+  /**
+   * @param {Candle[]} [next]
+   * @param {{ fitContent?: boolean }} [opts]
+   */
+  function reset(next = [], opts = {}) {
+    const series = seriesRef.current;
+    const chart = chartRef.current;
+    if (!series || !chart) return;
+
+    series.setData(next ?? []);
+    if (opts.fitContent !== false && next?.length) {
+      chart.timeScale().fitContent();
+    }
+  }
+
+  /**
+   * @param {Candle} candle
+   */
+  function append(candle) {
+    const series = seriesRef.current;
+    if (!series || !candle) return;
+    series.update(candle);
+  }
 
   useEffect(() => {
     const container = containerRef.current;
@@ -68,16 +106,23 @@ export default function CandleChart({ candles }) {
     };
   }, []);
 
+  // Live mode: full buffer via setData.
   useEffect(() => {
-    const series = seriesRef.current;
-    const chart = chartRef.current;
-    if (!series || !chart) return;
+    if (mode !== "live") return;
+    reset(candles ?? [], { fitContent: true });
+  }, [mode, candles]);
 
-    series.setData(candles ?? []);
-    if (candles?.length) {
-      chart.timeScale().fitContent();
+  // Replay mode: replace on enter/seek/step back; append on play/step forward.
+  useEffect(() => {
+    if (mode !== "replay" || !chartSync) return;
+
+    if (chartSync.kind === "append" && currentCandle) {
+      append(currentCandle);
+      return;
     }
-  }, [candles]);
+
+    reset(visibleCandles ?? [], { fitContent: chartSync.fitContent });
+  }, [mode, chartSync?.revision]);
 
   return <div ref={containerRef} className="absolute inset-0 h-full w-full" />;
 }

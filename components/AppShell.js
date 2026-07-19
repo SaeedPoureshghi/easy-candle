@@ -5,7 +5,7 @@ import TimeframeSelect from "@/components/TimeframeSelect";
 import { useReplayStore } from "@/store/replayStore";
 
 /**
- * App chrome: header, live selectors, loading/error, full-height chart slot.
+ * App chrome: header, selectors, minimal replay controls, chart slot.
  *
  * @param {{ children: import("react").ReactNode }} props
  */
@@ -13,6 +13,20 @@ export default function AppShell({ children }) {
   const status = useReplayStore((s) => s.status);
   const error = useReplayStore((s) => s.error);
   const candles = useReplayStore((s) => s.candles);
+  const mode = useReplayStore((s) => s.mode);
+  const replayStatus = useReplayStore((s) => s.replayStatus);
+  const isPlaying = useReplayStore((s) => s.isPlaying);
+  const speed = useReplayStore((s) => s.speed);
+  const replayIndex = useReplayStore((s) => s.replayIndex);
+  const enterReplay = useReplayStore((s) => s.enterReplay);
+  const exitReplay = useReplayStore((s) => s.exitReplay);
+  const play = useReplayStore((s) => s.play);
+  const pause = useReplayStore((s) => s.pause);
+  const stepForward = useReplayStore((s) => s.stepForward);
+  const stepBackward = useReplayStore((s) => s.stepBackward);
+
+  const canReplay = status === "ready" && candles.length > 0;
+  const inReplay = mode === "replay";
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -21,7 +35,9 @@ export default function AppShell({ children }) {
           <h1 className="text-lg font-semibold tracking-tight text-amber-400">
             Easy Candle
           </h1>
-          <p className="text-xs text-zinc-500">Live chart · UTC</p>
+          <p className="text-xs text-zinc-500">
+            {inReplay ? "Replay · UTC" : "Live chart · UTC"}
+          </p>
         </div>
       </header>
 
@@ -29,11 +45,76 @@ export default function AppShell({ children }) {
         <SymbolSelect />
         <TimeframeSelect />
 
+        <div className="flex flex-wrap items-center gap-2">
+          {!inReplay && (
+            <button
+              type="button"
+              disabled={!canReplay}
+              onClick={() => enterReplay()}
+              className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 enabled:hover:border-amber-500/60 enabled:hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Enter replay
+            </button>
+          )}
+
+          {inReplay && (
+            <>
+              {!isPlaying ? (
+                <button
+                  type="button"
+                  disabled={replayStatus === "ended"}
+                  onClick={play}
+                  className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 enabled:hover:border-amber-500/60 enabled:hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Play
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={pause}
+                  className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 hover:border-amber-500/60 hover:text-amber-300"
+                >
+                  Pause
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={stepBackward}
+                disabled={replayIndex <= 0}
+                className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 enabled:hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Step −
+              </button>
+              <button
+                type="button"
+                onClick={stepForward}
+                disabled={replayStatus === "ended"}
+                className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 enabled:hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Step +
+              </button>
+              <button
+                type="button"
+                onClick={exitReplay}
+                className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+              >
+                Exit
+              </button>
+            </>
+          )}
+        </div>
+
         <div className="ml-auto text-xs text-zinc-500">
           {status === "loading" && <span>Loading candles…</span>}
-          {status === "ready" && (
+          {status === "ready" && !inReplay && (
+            <span>{candles.length.toLocaleString()} candles</span>
+          )}
+          {inReplay && (
             <span>
-              {candles.length.toLocaleString()} candles
+              {replayStatus}
+              {isPlaying ? ` · ${speed}x` : ""}
+              {" · "}
+              {replayIndex + 1}/{candles.length}
             </span>
           )}
           {status === "error" && (

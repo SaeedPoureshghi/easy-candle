@@ -16,6 +16,10 @@ const CandleChart = dynamic(() => import("@/components/CandleChart"), {
 
 export default function HomePage() {
   const candles = useReplayStore((s) => s.candles);
+  const mode = useReplayStore((s) => s.mode);
+  const visibleCandles = useReplayStore((s) => s.visibleCandles);
+  const currentCandle = useReplayStore((s) => s.currentCandle);
+  const chartSync = useReplayStore((s) => s.chartSync);
   const loadCandles = useReplayStore((s) => s.loadCandles);
 
   useEffect(() => {
@@ -24,7 +28,13 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <CandleChart candles={candles} />
+      <CandleChart
+        mode={mode}
+        candles={candles}
+        visibleCandles={visibleCandles}
+        currentCandle={currentCandle}
+        chartSync={chartSync}
+      />
     </AppShell>
   );
 }

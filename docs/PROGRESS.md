@@ -7,9 +7,9 @@ Single source of truth for session status. Agents must read this before starting
 ## Current pointer
 
 - **Active version:** v2
-- **Last done session:** `v2-03`
+- **Last done session:** `v2-04`
 - **Next session to implement:** `v2-05`
-- **Active branch:** `session/v2-04-basic-drawings`
+- **Active branch:** _(none)_
 
 ## v1 sessions (complete)
 
@@ -33,7 +33,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 | v2-01 | Icon toolbar + UI polish | 1 | `session/v2-01-ui-icons-toolbar` | `done` | yes | lucide icons + docs/v2 scaffold |
 | v2-02 | Spacebar shortcut | 1 | `session/v2-02-spacebar-shortcut` | `done` | yes | Space pause / step |
 | v2-03 | Basic indicators (SMA / EMA) | 2 | `session/v2-03-basic-indicators` | `done` | yes | SMA20 / EMA20 overlays |
-| v2-04 | Basic drawings | 2 | `session/v2-04-basic-drawings` | `implemented` | no | hline + trendline SVG layer |
+| v2-04 | Basic drawings | 2 | `session/v2-04-basic-drawings` | `done` | yes | hline + trendline SVG layer |
 | v2-05 | Simple paper trading | 3 | `session/v2-05-simple-paper-trading` | `pending` | no | |
 | v2-06 | Polish & tests | 4 | `session/v2-06-polish-tests` | `pending` | no | |
 
@@ -50,6 +50,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | v2-04 | Merged into local `main`; status → `done`. |
 | 2026-07-19 | v2-04 | Horizontal + trend line drawings; status → `implemented`. |
 | 2026-07-19 | v2-03 | Merged into local `main`; status → `done`. |
 | 2026-07-19 | v2-03 | SMA/EMA overlays + toggles + tests; status → `implemented`. |

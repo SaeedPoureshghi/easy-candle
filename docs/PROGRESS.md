@@ -7,9 +7,9 @@ Single source of truth for session status. Agents must read this before starting
 ## Current pointer
 
 - **Active version:** v2
-- **Last done session:** v1 `08` (v1 complete)
+- **Last done session:** `v2-01`
 - **Next session to implement:** `v2-02`
-- **Active branch:** `session/v2-01-ui-icons-toolbar`
+- **Active branch:** _(none)_
 
 ## v1 sessions (complete)
 
@@ -30,7 +30,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 
 | ID | Title | Phase | Branch | Status | Merged to main | Notes |
 |----|-------|-------|--------|--------|----------------|-------|
-| v2-01 | Icon toolbar + UI polish | 1 | `session/v2-01-ui-icons-toolbar` | `implemented` | no | lucide icons + docs/v2 scaffold |
+| v2-01 | Icon toolbar + UI polish | 1 | `session/v2-01-ui-icons-toolbar` | `done` | yes | lucide icons + docs/v2 scaffold |
 | v2-02 | Spacebar shortcut | 1 | `session/v2-02-spacebar-shortcut` | `pending` | no | |
 | v2-03 | Basic indicators (SMA / EMA) | 2 | `session/v2-03-basic-indicators` | `pending` | no | |
 | v2-04 | Basic drawings | 2 | `session/v2-04-basic-drawings` | `pending` | no | |
@@ -50,6 +50,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | v2-01 | Merged into local `main`; status → `done`. |
 | 2026-07-19 | v2-01 | Icon toolbar + docs/v2 scaffold; status → `implemented`. |
 | 2026-07-19 | v2-01 | Started icon toolbar + docs/v2 scaffold; status → `in_progress`. |
 | 2026-07-19 | 08 | Merged `session/08-polish` into local `main`; status → `done`. v1 complete. |

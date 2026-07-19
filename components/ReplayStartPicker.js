@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { CalendarClock, Play } from "lucide-react";
+import IconButton from "@/components/IconButton";
 import { defaultUtcParts, parseUtcParts } from "@/lib/utcDateTime";
 import { useReplayStore } from "@/store/replayStore";
 
@@ -34,41 +36,44 @@ export default function ReplayStartPicker() {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-wrap items-end gap-2 text-sm text-zinc-400"
+      className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zinc-500">
-          Start date (UTC)
-        </span>
-        <input
-          type="date"
-          value={date}
-          disabled={disabled}
-          onChange={(e) => setDate(e.target.value)}
-          className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-zinc-300 disabled:opacity-60"
-        />
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zinc-500">
-          Start time (UTC)
-        </span>
-        <input
-          type="time"
-          value={time}
-          disabled={disabled}
-          onChange={(e) => setTime(e.target.value)}
-          className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-zinc-300 disabled:opacity-60"
-        />
-      </label>
-
-      <button
+      <CalendarClock className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
+      <span className="text-[11px] uppercase tracking-wide text-zinc-500">
+        Replay UTC
+      </span>
+      <input
+        type="date"
+        value={date}
+        disabled={disabled}
+        aria-label="Replay start date UTC"
+        onChange={(e) => setDate(e.target.value)}
+        className="h-8 rounded border border-zinc-700 bg-zinc-900 px-1.5 text-zinc-300 disabled:opacity-60"
+      />
+      <input
+        type="time"
+        value={time}
+        disabled={disabled}
+        aria-label="Replay start time UTC"
+        onChange={(e) => setTime(e.target.value)}
+        className="h-8 rounded border border-zinc-700 bg-zinc-900 px-1.5 text-zinc-300 disabled:opacity-60"
+      />
+      <IconButton
+        label={
+          replayLoading && mode !== "replay"
+            ? "Loading replay window"
+            : "Start replay"
+        }
         type="submit"
         disabled={disabled || status !== "ready"}
-        className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-200 enabled:hover:border-amber-500/60 enabled:hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+        tone="accent"
+        className="!w-auto gap-1.5 px-2.5"
       >
-        {replayLoading && mode !== "replay" ? "Loading…" : "Start replay"}
-      </button>
+        <Play className="h-3.5 w-3.5 fill-current" />
+        <span className="text-xs font-medium">
+          {replayLoading && mode !== "replay" ? "…" : "Replay"}
+        </span>
+      </IconButton>
 
       {localError && (
         <span className="text-xs text-red-400">{localError}</span>

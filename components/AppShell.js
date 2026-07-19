@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Activity } from "lucide-react";
 import ReplayControls from "@/components/ReplayControls";
 import ReplayStartPicker from "@/components/ReplayStartPicker";
 import StatusBar from "@/components/StatusBar";
@@ -44,32 +45,39 @@ export default function AppShell({ children }) {
   }, [pause]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <header className="shrink-0 border-b border-zinc-800 px-4 py-3 sm:px-6">
-        <div className="flex items-baseline justify-between gap-4">
-          <h1 className="text-lg font-semibold tracking-tight text-amber-400">
-            Easy Candle
-          </h1>
-          <p className="text-xs text-zinc-500">
-            {inReplay ? "Replay · UTC" : "Live chart · UTC"}
-          </p>
+    <div className="flex h-full flex-col overflow-hidden bg-zinc-950">
+      <header className="shrink-0 border-b border-zinc-800/90 bg-gradient-to-b from-zinc-900/80 to-zinc-950 px-3 py-2.5 sm:px-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded border border-amber-500/30 bg-amber-950/40 text-amber-400">
+              <Activity className="h-4 w-4" aria-hidden />
+            </span>
+            <div className="leading-tight">
+              <h1 className="text-sm font-semibold tracking-tight text-amber-400">
+                Easy Candle
+              </h1>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+                {inReplay ? "Replay · UTC" : "Live · UTC"}
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="flex shrink-0 flex-col gap-3 border-b border-zinc-800 px-4 py-3 sm:px-6">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex shrink-0 flex-col gap-2 border-b border-zinc-800/90 bg-zinc-950/90 px-3 py-2 sm:px-4">
+        <div className="flex flex-wrap items-center gap-2">
           <SymbolSelect />
           <TimeframeSelect />
           <StatusBar />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {!inReplay ? <ReplayStartPicker /> : <ReplayControls />}
         </div>
       </div>
 
       {status === "error" && error && (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-red-900/50 bg-red-950/40 px-4 py-2 text-sm text-red-300 sm:px-6">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-red-900/50 bg-red-950/40 px-3 py-1.5 text-sm text-red-300 sm:px-4">
           <span>{error}</span>
           {!inReplay && (
             <button
@@ -84,14 +92,14 @@ export default function AppShell({ children }) {
       )}
 
       {showEndedBanner && (
-        <div className="shrink-0 border-b border-amber-900/40 bg-amber-950/30 px-4 py-1.5 text-xs text-amber-200/90 sm:px-6">
+        <div className="shrink-0 border-b border-amber-900/40 bg-amber-950/30 px-3 py-1.5 text-xs text-amber-200/90 sm:px-4">
           Replay reached the end of the loaded buffer. Jump to another UTC time,
           step back, or exit to live.
         </div>
       )}
 
-      <main className="relative flex min-h-0 flex-1 flex-col p-2 sm:p-3">
-        <div className="relative min-h-0 flex-1 overflow-hidden rounded border border-zinc-800 bg-zinc-950">
+      <main className="relative flex min-h-0 flex-1 flex-col p-1.5 sm:p-2">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-sm border border-zinc-800 bg-zinc-950 shadow-[inset_0_1px_0_0_rgba(63,63,70,0.35)]">
           {children}
           {(status === "loading" || replayLoading) && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-zinc-950/75 text-sm text-zinc-400">

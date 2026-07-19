@@ -6,11 +6,12 @@ Single source of truth for session status. Agents must read this before starting
 
 ## Current pointer
 
-- **Last done session:** `08`
-- **Next session to implement:** _(none — v1 complete)_
-- **Active branch:** _(none)_
+- **Active version:** v2
+- **Last done session:** v1 `08` (v1 complete)
+- **Next session to implement:** `v2-02`
+- **Active branch:** `session/v2-01-ui-icons-toolbar`
 
-## Sessions
+## v1 sessions (complete)
 
 | ID | Title | Phase | Branch | Status | Merged to main | Notes |
 |----|-------|-------|--------|--------|----------------|-------|
@@ -23,17 +24,34 @@ Single source of truth for session status. Agents must read this before starting
 | 07 | Replay controls + prefetch | 3 | `session/07-replay-controls` | `done` | yes | Start/jump UTC, controls, batch prefetch, TF remap |
 | 08 | Polish, tests, edge cases | 4 | `session/08-polish` | `done` | yes | Vitest engine tests, UX polish, README |
 
+## v2 sessions
+
+See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
+
+| ID | Title | Phase | Branch | Status | Merged to main | Notes |
+|----|-------|-------|--------|--------|----------------|-------|
+| v2-01 | Icon toolbar + UI polish | 1 | `session/v2-01-ui-icons-toolbar` | `implemented` | no | lucide icons + docs/v2 scaffold |
+| v2-02 | Spacebar shortcut | 1 | `session/v2-02-spacebar-shortcut` | `pending` | no | |
+| v2-03 | Basic indicators (SMA / EMA) | 2 | `session/v2-03-basic-indicators` | `pending` | no | |
+| v2-04 | Basic drawings | 2 | `session/v2-04-basic-drawings` | `pending` | no | |
+| v2-05 | Simple paper trading | 3 | `session/v2-05-simple-paper-trading` | `pending` | no | |
+| v2-06 | Polish & tests | 4 | `session/v2-06-polish-tests` | `pending` | no | |
+
 ## Status legend
 
-- `pending` — not started
-- `in_progress` — implementation underway on the session branch
-- `implemented` — finished and committed on the session branch; waiting for user OK to merge locally
-- `done` — merged into local `main` (user pushes remote themselves)
+| Status | Meaning |
+|--------|---------|
+| `pending` | Not started |
+| `in_progress` | Implementation underway on the session branch |
+| `implemented` | Finished and committed on the session branch; waiting for user OK to merge locally |
+| `done` | Merged into local `main` |
 
 ## Changelog
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | v2-01 | Icon toolbar + docs/v2 scaffold; status → `implemented`. |
+| 2026-07-19 | v2-01 | Started icon toolbar + docs/v2 scaffold; status → `in_progress`. |
 | 2026-07-19 | 08 | Merged `session/08-polish` into local `main`; status → `done`. v1 complete. |
 | 2026-07-19 | 08 | Vitest engine tests, empty/error/ended UX, tab-hidden pause, README; status → `implemented`. |
 | 2026-07-19 | 07 | Merged `session/07-replay-controls` into local `main`; status → `done`. |

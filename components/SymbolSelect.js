@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartCandlestick } from "lucide-react";
 import { SYMBOLS } from "@/lib/symbols";
 import { useReplayStore } from "@/store/replayStore";
 
@@ -10,12 +11,14 @@ export default function SymbolSelect() {
   const disabled = status === "loading";
 
   return (
-    <label className="flex items-center gap-2 text-sm text-zinc-400">
-      <span>Symbol</span>
+    <label className="flex h-8 items-center gap-1.5 rounded border border-zinc-700 bg-zinc-900/80 px-2 text-xs text-zinc-400">
+      <ChartCandlestick className="h-3.5 w-3.5 shrink-0 text-zinc-500" aria-hidden />
+      <span className="sr-only">Symbol</span>
       <select
-        className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-zinc-300 disabled:opacity-60"
+        className="bg-transparent text-zinc-300 outline-none disabled:opacity-60"
         value={symbol}
         disabled={disabled}
+        aria-label="Symbol"
         onChange={(event) => setSymbol(event.target.value)}
       >
         {SYMBOLS.map((entry) => (

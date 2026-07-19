@@ -17,20 +17,28 @@ This project is built in **sessions**. Each session is one focused slice of work
 
 ## Branch naming
 
+**v1** (complete):
+
 ```
 session/<NN>-<short-slug>
+```
+
+**v2** (active):
+
+```
+session/v2-<NN>-<short-slug>
 ```
 
 Examples:
 
 - `session/01-project-setup`
-- `session/02-static-chart`
+- `session/v2-01-ui-icons-toolbar`
 
 Always branch from local `main`:
 
 ```bash
 git checkout main
-git checkout -b session/0N-short-slug
+git checkout -b session/v2-0N-short-slug
 ```
 
 Do not push session branches or `main` unless the user explicitly asks. The user pushes `main` themselves.
@@ -53,6 +61,21 @@ Do not push session branches or `main` unless the user explicitly asks. The user
 - Leave pushing `main` to the user.
 
 ## Session index
+
+### v2 (active)
+
+See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md) and [`PROGRESS.md`](./PROGRESS.md).
+
+| ID | Phase | Title | Doc |
+|----|-------|-------|-----|
+| v2-01 | 1 | Icon toolbar + UI polish | [v2/sessions/01-ui-icons-toolbar.md](./v2/sessions/01-ui-icons-toolbar.md) |
+| v2-02 | 1 | Spacebar shortcut | [v2/sessions/02-spacebar-shortcut.md](./v2/sessions/02-spacebar-shortcut.md) |
+| v2-03 | 2 | Basic indicators (SMA / EMA) | [v2/sessions/03-basic-indicators.md](./v2/sessions/03-basic-indicators.md) |
+| v2-04 | 2 | Basic drawings | [v2/sessions/04-basic-drawings.md](./v2/sessions/04-basic-drawings.md) |
+| v2-05 | 3 | Simple paper trading | [v2/sessions/05-simple-paper-trading.md](./v2/sessions/05-simple-paper-trading.md) |
+| v2-06 | 4 | Polish & tests | [v2/sessions/06-polish-tests.md](./v2/sessions/06-polish-tests.md) |
+
+### v1 (complete)
 
 | ID | Phase | Title | Doc |
 |----|-------|-------|-----|
@@ -79,9 +102,9 @@ Do not push session branches or `main` unless the user explicitly asks. The user
 When the user says **implement next session**:
 
 1. Open [`PROGRESS.md`](./PROGRESS.md).
-2. Find the highest session ID with status `done` (or none → start at 01).
+2. Prefer the **active version** pointer (v2). Find the next `pending` v2 session (or unfinished `in_progress`).
 3. If a session is `in_progress` or `implemented`, stop and report that; do not start a new session until that one is `done` or the user redirects.
-4. Read that session’s markdown under `docs/sessions/`.
+4. Read that session’s markdown under `docs/v2/sessions/` (v1 history under `docs/sessions/`).
 5. Create the session branch from local `main`, implement only that session’s scope.
 6. Set progress to `implemented`, commit locally on the session branch with a short proper message. Do not push. Do not merge yet.
 
@@ -93,11 +116,11 @@ When the user says **merge** (this session / to main):
 4. After a successful merge, delete the local session branch (`git branch -d session/...`).
 5. Do not push; remind the user they can push `main` themselves.
 
-## Stack reminders (v1)
+## Stack reminders
 
 - Next.js App Router (JavaScript)
-- `lightweight-charts` for candlesticks
+- `lightweight-charts` for candlesticks (not TradingView Charting Library)
 - Binance REST via `app/api/klines` proxy
 - Zustand + pure `lib/replayEngine.js`
-- Tailwind CSS
-- Indicators stubbed only (`lib/indicators.js`) — no real indicators in v1
+- Tailwind CSS + `lucide-react` (v2 toolbar)
+- v2: basic SMA/EMA, simple drawings, simple paper trading (see `docs/v2/`)

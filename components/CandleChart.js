@@ -226,10 +226,15 @@ export default function CandleChart({
     const series = seriesRef.current;
     if (!series) return;
     const markers = Array.isArray(tradeMarkers) ? tradeMarkers : [];
-    // lightweight-charts requires markers sorted by time.
-    const sorted = [...markers].sort((a, b) => a.time - b.time);
+    const source =
+      mode === "replay" ? visibleCandles ?? [] : candles ?? [];
+    const knownTimes = new Set(source.map((c) => c.time));
+    // Only markers that exist on the current series (avoids LWC gaps after jump).
+    const sorted = markers
+      .filter((m) => knownTimes.has(m.time))
+      .sort((a, b) => a.time - b.time);
     series.setMarkers(sorted);
-  }, [tradeMarkers]);
+  }, [tradeMarkers, mode, candles, visibleCandles]);
 
   const empty =
     mode === "live"

@@ -24,3 +24,14 @@ Example: `session/v2-01-ui-icons-toolbar`
 ## Out of v2
 
 Position size, TP/SL, advanced indicators, advanced drawings, WebSocket live, TradingView Charting Library.
+
+## v2 complete checklist
+
+When session `06` is `done`:
+
+- Icon toolbar + denser chrome
+- Space pause / step (+ Esc clears draw tool)
+- SMA 20 / EMA 20 overlays
+- Horizontal + trend drawings
+- Simple Buy/Sell paper trading
+- README + tests + `package.json` `2.0.0`

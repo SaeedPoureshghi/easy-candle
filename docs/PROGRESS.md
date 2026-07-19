@@ -8,8 +8,8 @@ Single source of truth for session status. Agents must read this before starting
 
 - **Active version:** v2
 - **Last done session:** `v2-05`
-- **Next session to implement:** `v2-06`
-- **Active branch:** _(none)_
+- **Next session to implement:** _(none — completing v2-06)_
+- **Active branch:** `session/v2-06-polish-tests`
 
 ## v1 sessions (complete)
 
@@ -35,7 +35,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 | v2-03 | Basic indicators (SMA / EMA) | 2 | `session/v2-03-basic-indicators` | `done` | yes | SMA20 / EMA20 overlays |
 | v2-04 | Basic drawings | 2 | `session/v2-04-basic-drawings` | `done` | yes | hline + trendline SVG layer |
 | v2-05 | Simple paper trading | 3 | `session/v2-05-simple-paper-trading` | `done` | yes | Buy/Sell + markers + PnL |
-| v2-06 | Polish & tests | 4 | `session/v2-06-polish-tests` | `pending` | no | |
+| v2-06 | Polish & tests | 4 | `session/v2-06-polish-tests` | `implemented` | no | README + edge cases + 2.0.0 |
 
 ## Status legend
 
@@ -50,6 +50,7 @@ See [`docs/v2/SESSIONS.md`](./v2/SESSIONS.md).
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | v2-06 | Polish, README, version 2.0.0; status → `implemented`. |
 | 2026-07-19 | v2-05 | Merged into local `main`; status → `done`. |
 | 2026-07-19 | v2-05 | Simple Buy/Sell paper trading; status → `implemented`. |
 | 2026-07-19 | v2-04 | Merged into local `main`; status → `done`. |

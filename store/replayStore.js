@@ -412,7 +412,15 @@ export const useReplayStore = create((set, get) => {
     // and 15m→4h seeks the parent 4h that contains the playhead.
     const seekTime = alignTimeToInterval(anchorOpen, nextIntervalSec);
 
-    set({ timeframe: nextTimeframe });
+    // Drawings/trades are time-scale bound; reset them on TF remap.
+    set({
+      timeframe: nextTimeframe,
+      drawings: [],
+      pendingTrend: null,
+      drawTool: "select",
+      position: null,
+      tradeMarkers: [],
+    });
 
     const ok = await loadReplayWindow(seekTime, {
       clampMessage: true,

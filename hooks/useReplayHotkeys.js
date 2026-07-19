@@ -21,24 +21,36 @@ function isEditableTarget(target) {
  * Replay keyboard shortcuts:
  * - Space while playing → pause
  * - Space while paused/ready → step forward one candle
+ * - Escape → cancel pending trend line / return to select tool
  */
 export function useReplayHotkeys() {
   const mode = useReplayStore((s) => s.mode);
   const pause = useReplayStore((s) => s.pause);
   const stepForward = useReplayStore((s) => s.stepForward);
+  const setDrawTool = useReplayStore((s) => s.setDrawTool);
 
   useEffect(() => {
     if (mode !== "replay") return undefined;
 
     function onKeyDown(event) {
-      if (event.code !== "Space" && event.key !== " ") return;
-      if (event.repeat) return;
       if (isEditableTarget(event.target)) return;
 
-      event.preventDefault();
-
       const state = useReplayStore.getState();
-      if (state.mode !== "replay" || state.replayLoading) return;
+      if (state.mode !== "replay") return;
+
+      if (event.key === "Escape") {
+        if (state.pendingTrend || state.drawTool !== "select") {
+          event.preventDefault();
+          setDrawTool("select");
+        }
+        return;
+      }
+
+      if (event.code !== "Space" && event.key !== " ") return;
+      if (event.repeat) return;
+      if (state.replayLoading) return;
+
+      event.preventDefault();
 
       if (state.isPlaying) {
         pause();
@@ -51,5 +63,5 @@ export function useReplayHotkeys() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mode, pause, stepForward]);
+  }, [mode, pause, stepForward, setDrawTool]);
 }

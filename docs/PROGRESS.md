@@ -7,8 +7,8 @@ Single source of truth for session status. Agents must read this before starting
 ## Current pointer
 
 - **Last done session:** `02`
-- **Next session to implement:** `03`
-- **Active branch:** _(none)_
+- **Next session to implement:** `03` _(implemented on branch; awaiting merge)_
+- **Active branch:** `session/03-binance-proxy`
 
 ## Sessions
 
@@ -16,7 +16,7 @@ Single source of truth for session status. Agents must read this before starting
 |----|-------|-------|--------|--------|----------------|-------|
 | 01 | Project setup | 1 | `session/01-project-setup` | `done` | yes | Next.js App Router + Tailwind shell |
 | 02 | Static chart shell | 1 | `session/02-static-chart` | `done` | yes | Mock candles via lightweight-charts v4 |
-| 03 | Binance klines proxy | 2 | `session/03-binance-proxy` | `pending` | no | |
+| 03 | Binance klines proxy | 2 | `session/03-binance-proxy` | `implemented` | no | Allowlisted `/api/klines` + cache headers |
 | 04 | Real data on chart | 2 | `session/04-real-chart-data` | `pending` | no | |
 | 05 | Replay engine module | 3 | `session/05-replay-engine` | `pending` | no | |
 | 06 | Store, clock, chart sync | 3 | `session/06-replay-store-sync` | `pending` | no | |
@@ -34,6 +34,7 @@ Single source of truth for session status. Agents must read this before starting
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | 03 | Binance klines proxy route + helpers; status → `implemented`. |
 | 2026-07-19 | 02 | Merged `session/02-static-chart` into local `main`; status → `done`. |
 | 2026-07-19 | 02 | Static chart shell with mock OHLC + AppShell; status → `implemented`. |
 | 2026-07-19 | 01 | Merged `session/01-project-setup` into local `main`; status → `done`. |

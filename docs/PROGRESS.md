@@ -6,9 +6,9 @@ Single source of truth for session status. Agents must read this before starting
 
 ## Current pointer
 
-- **Last done session:** `06`
-- **Next session to implement:** `07` _(awaiting merge)_
-- **Active branch:** `session/07-replay-controls`
+- **Last done session:** `07`
+- **Next session to implement:** `08`
+- **Active branch:** _(none)_
 
 ## Sessions
 
@@ -20,7 +20,7 @@ Single source of truth for session status. Agents must read this before starting
 | 04 | Real data on chart | 2 | `session/04-real-chart-data` | `done` | yes | Live BTCUSDT via store + selectors |
 | 05 | Replay engine module | 3 | `session/05-replay-engine` | `done` | yes | Pure `createReplayEngine` + `findIndexAtOrBefore` |
 | 06 | Store, clock, chart sync | 3 | `session/06-replay-store-sync` | `done` | yes | Engine in store + clock + setData/update sync |
-| 07 | Replay controls + prefetch | 3 | `session/07-replay-controls` | `implemented` | no | Start/jump UTC, controls, batch prefetch |
+| 07 | Replay controls + prefetch | 3 | `session/07-replay-controls` | `done` | yes | Start/jump UTC, controls, batch prefetch, TF remap |
 | 08 | Polish, tests, edge cases | 4 | `session/08-polish` | `pending` | no | |
 
 ## Status legend
@@ -34,6 +34,7 @@ Single source of truth for session status. Agents must read this before starting
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | 07 | Merged `session/07-replay-controls` into local `main`; status → `done`. |
 | 2026-07-19 | 07 | Replay start/jump UTC controls + forward prefetch; status → `implemented`. |
 | 2026-07-19 | 06 | Merged `session/06-replay-store-sync` into local `main`; status → `done`. |
 | 2026-07-19 | 06 | Store clock + chart setData/update sync; status → `implemented`. |

@@ -7,14 +7,14 @@ Single source of truth for session status. Agents must read this before starting
 ## Current pointer
 
 - **Last done session:** _(none)_
-- **Next session to implement:** `01`
-- **Active branch:** _(none)_
+- **Next session to implement:** `01` _(waiting for merge)_
+- **Active branch:** `session/01-project-setup`
 
 ## Sessions
 
 | ID | Title | Phase | Branch | Status | Merged to main | Notes |
 |----|-------|-------|--------|--------|----------------|-------|
-| 01 | Project setup | 1 | `session/01-project-setup` | `pending` | no | |
+| 01 | Project setup | 1 | `session/01-project-setup` | `implemented` | no | Next.js App Router + Tailwind shell |
 | 02 | Static chart shell | 1 | `session/02-static-chart` | `pending` | no | |
 | 03 | Binance klines proxy | 2 | `session/03-binance-proxy` | `pending` | no | |
 | 04 | Real data on chart | 2 | `session/04-real-chart-data` | `pending` | no | |
@@ -34,4 +34,5 @@ Single source of truth for session status. Agents must read this before starting
 
 | Date | Session | Event |
 |------|---------|-------|
+| 2026-07-19 | 01 | Scaffolded Next.js App Router + Tailwind; status → `implemented`. |
 | 2026-07-19 | — | Progress file created; all sessions `pending`. Repo init on `main` (`yarn`, GitHub). |

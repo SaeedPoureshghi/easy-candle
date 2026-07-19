@@ -33,12 +33,20 @@ function focusLatestCandle(chart, candleCount, leftBars = DEFAULT_VISIBLE_BARS) 
 }
 
 /**
+ * Future line overlays (v1: accepted, not rendered).
+ *
+ * @typedef {{ time: number, value: number }} OverlayPoint
+ * @typedef {{ id: string, type: 'line', data: OverlayPoint[], color?: string }} ChartOverlay
+ */
+
+/**
  * @param {{
  *   mode?: 'live' | 'replay',
  *   candles?: Candle[] | null,
  *   visibleCandles?: Candle[] | null,
  *   currentCandle?: Candle | null,
  *   chartSync?: ChartSync | null,
+ *   overlays?: ChartOverlay[] | null,
  * }} props
  */
 export default function CandleChart({
@@ -47,6 +55,7 @@ export default function CandleChart({
   visibleCandles = null,
   currentCandle = null,
   chartSync = null,
+  overlays: _overlays = null,
 }) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
@@ -156,5 +165,21 @@ export default function CandleChart({
     reset(visibleCandles ?? [], { fitContent: chartSync.fitContent });
   }, [mode, chartSync?.revision]);
 
-  return <div ref={containerRef} className="absolute inset-0 h-full w-full" />;
+  const empty =
+    mode === "live"
+      ? !(candles && candles.length)
+      : !(visibleCandles && visibleCandles.length);
+
+  return (
+    <div className="absolute inset-0 h-full w-full">
+      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+      {empty && (
+        <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center bg-zinc-950/40 px-4 text-center text-sm text-zinc-500">
+          {mode === "replay"
+            ? "No candles in this replay window yet."
+            : "No candles to display."}
+        </div>
+      )}
+    </div>
+  );
 }

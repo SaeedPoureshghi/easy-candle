@@ -3,6 +3,26 @@
 import { formatUtcCandleTime } from "@/lib/utcDateTime";
 import { useReplayStore } from "@/store/replayStore";
 
+/**
+ * @param {string} status
+ */
+function replayLabel(status) {
+  switch (status) {
+    case "ready":
+      return "Ready";
+    case "playing":
+      return "Playing";
+    case "paused":
+      return "Paused";
+    case "ended":
+      return "Ended";
+    case "idle":
+      return "Idle";
+    default:
+      return String(status);
+  }
+}
+
 export default function StatusBar() {
   const status = useReplayStore((s) => s.status);
   const error = useReplayStore((s) => s.error);
@@ -19,18 +39,28 @@ export default function StatusBar() {
   const replayMessage = useReplayStore((s) => s.replayMessage);
 
   if (mode === "replay") {
+    const ended = replayStatus === "ended";
     const parts = [
-      replayStatus,
+      replayLabel(replayStatus),
       isPlaying ? `${speed}x` : null,
       formatUtcCandleTime(currentCandle?.time),
-      `${replayIndex + 1}/${bufferLength || candles.length}`,
+      bufferLength > 0
+        ? `${replayIndex + 1}/${bufferLength}`
+        : "0/0",
       replayLoading ? "loading window…" : null,
       isPrefetching ? "prefetching…" : null,
     ].filter(Boolean);
 
     return (
       <div className="ml-auto flex flex-col items-end gap-0.5 text-xs text-zinc-500">
-        <span>{parts.join(" · ")}</span>
+        <span className={ended ? "text-amber-400/90" : undefined}>
+          {parts.join(" · ")}
+        </span>
+        {ended && !replayMessage && (
+          <span className="text-amber-400/80">
+            End of buffer — jump, step back, or wait for prefetch.
+          </span>
+        )}
         {replayMessage && (
           <span className="text-amber-400/90">{replayMessage}</span>
         )}
@@ -41,7 +71,10 @@ export default function StatusBar() {
   return (
     <div className="ml-auto text-xs text-zinc-500">
       {status === "loading" && <span>Loading candles…</span>}
-      {status === "ready" && (
+      {status === "ready" && candles.length === 0 && (
+        <span className="text-zinc-400">No candles returned</span>
+      )}
+      {status === "ready" && candles.length > 0 && (
         <span>{candles.length.toLocaleString()} candles</span>
       )}
       {status === "error" && (

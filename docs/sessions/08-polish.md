@@ -34,10 +34,10 @@ Harden v1: engine unit tests, clearer empty/error/loading UX, documented runbook
 
 ## Exit criteria
 
-- [ ] Engine tests pass via yarn script
-- [ ] README explains setup + links to `docs/SESSIONS.md`
-- [ ] Known edge cases from session 07 handled or explicitly noted
-- [ ] `PROGRESS.md` → `implemented` for session 08 (then `done` after merge → v1 complete)
+- [x] Engine tests pass via yarn script
+- [x] README explains setup + links to `docs/SESSIONS.md`
+- [x] Known edge cases from session 07 handled or explicitly noted
+- [x] `PROGRESS.md` → `implemented` for session 08 (then `done` after merge → v1 complete)
 
 ## Tricky bits
 

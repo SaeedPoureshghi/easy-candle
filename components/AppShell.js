@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import ReplayControls from "@/components/ReplayControls";
 import ReplayStartPicker from "@/components/ReplayStartPicker";
 import StatusBar from "@/components/StatusBar";
@@ -17,8 +18,30 @@ export default function AppShell({ children }) {
   const error = useReplayStore((s) => s.error);
   const mode = useReplayStore((s) => s.mode);
   const replayLoading = useReplayStore((s) => s.replayLoading);
+  const replayStatus = useReplayStore((s) => s.replayStatus);
+  const candles = useReplayStore((s) => s.candles);
+  const pause = useReplayStore((s) => s.pause);
+  const loadCandles = useReplayStore((s) => s.loadCandles);
 
   const inReplay = mode === "replay";
+  const showEmptyLive =
+    !inReplay && status === "ready" && candles.length === 0;
+  const showEndedBanner = inReplay && replayStatus === "ended";
+
+  // Pause the replay clock when the tab is hidden (battery / focus).
+  useEffect(() => {
+    function onVisibility() {
+      if (document.visibilityState === "hidden") {
+        const state = useReplayStore.getState();
+        if (state.mode === "replay" && state.isPlaying) {
+          pause();
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [pause]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -46,8 +69,24 @@ export default function AppShell({ children }) {
       </div>
 
       {status === "error" && error && (
-        <div className="shrink-0 border-b border-red-900/50 bg-red-950/40 px-4 py-2 text-sm text-red-300 sm:px-6">
-          {error}
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-red-900/50 bg-red-950/40 px-4 py-2 text-sm text-red-300 sm:px-6">
+          <span>{error}</span>
+          {!inReplay && (
+            <button
+              type="button"
+              onClick={() => loadCandles()}
+              className="rounded border border-red-800/80 px-2 py-0.5 text-xs text-red-200 hover:border-red-600 hover:text-red-100"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      )}
+
+      {showEndedBanner && (
+        <div className="shrink-0 border-b border-amber-900/40 bg-amber-950/30 px-4 py-1.5 text-xs text-amber-200/90 sm:px-6">
+          Replay reached the end of the loaded buffer. Jump to another UTC time,
+          step back, or exit to live.
         </div>
       )}
 
@@ -55,8 +94,23 @@ export default function AppShell({ children }) {
         <div className="relative min-h-0 flex-1 overflow-hidden rounded border border-zinc-800 bg-zinc-950">
           {children}
           {(status === "loading" || replayLoading) && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/70 text-sm text-zinc-400">
-              {replayLoading ? "Loading replay window…" : "Loading candles…"}
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-zinc-950/75 text-sm text-zinc-400">
+              <span>
+                {replayLoading ? "Loading replay window…" : "Loading candles…"}
+              </span>
+              <span className="text-xs text-zinc-600">UTC · Binance klines</span>
+            </div>
+          )}
+          {showEmptyLive && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-zinc-950/60 px-4 text-center text-sm text-zinc-400">
+              <span>No candles for this symbol / timeframe.</span>
+              <button
+                type="button"
+                onClick={() => loadCandles()}
+                className="rounded border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300 hover:border-zinc-500 hover:text-zinc-100"
+              >
+                Reload
+              </button>
             </div>
           )}
         </div>

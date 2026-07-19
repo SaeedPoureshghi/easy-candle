@@ -91,10 +91,38 @@ export async function GET(request) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Upstream request failed";
+    const upstreamStatus =
+      err && typeof err === "object" && "status" in err
+        ? Number(/** @type {{ status?: number }} */ (err).status)
+        : undefined;
+
+    let clientMessage = "Failed to fetch klines from Binance";
+    let status = 502;
+
+    if (upstreamStatus === 429) {
+      clientMessage = "Binance rate limit reached — try again shortly";
+      status = 429;
+    } else if (upstreamStatus === 418) {
+      clientMessage = "Binance temporarily blocked this IP — try again later";
+      status = 503;
+    } else if (upstreamStatus != null && upstreamStatus >= 400 && upstreamStatus < 500) {
+      clientMessage = "Binance rejected the klines request";
+      status = 502;
+    }
 
     return NextResponse.json(
-      { error: "Failed to fetch klines from Binance", detail: message },
-      { status: 502 },
+      {
+        error: clientMessage,
+        detail: message,
+        ...(Number.isFinite(upstreamStatus) ? { upstreamStatus } : {}),
+      },
+      {
+        status,
+        headers: {
+          // Do not cache error responses.
+          "Cache-Control": "no-store",
+        },
+      },
     );
   }
 }
